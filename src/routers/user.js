@@ -5,6 +5,10 @@ const auth=require('../middleware/auth')
 const sharp=require('sharp')
 const multer=require('multer')
 const mail=require('../emails/account')
+const asid='AC501d605e1406eed2603eee5169a22b34'
+const acctoken='23e1d21679ece749337bf4dfc7763211'
+const serid='VA796432d4f249bbfadf4eb8fbd820340a'
+const client=require('twilio')(asid,acctoken)
 router.post('/users',async (req,res)=>{
     const user=new User(req.body)
     try{
@@ -15,6 +19,7 @@ router.post('/users',async (req,res)=>{
         // console.log(token)
         
           res.status(201).send({user,token})
+          
         //res.status(201).send(user)
     }
     catch(e){
@@ -159,6 +164,51 @@ router.get('/users/:id/avatar',async (req,res)=>{
     catch(e){
         res.status(404).send()
     }
+})
+
+router.post('/login/pno',async (req,res)=>{
+    
+    const no='+91' + req.body.pno
+    console.log(no)
+    try{
+        const user=await User.findOne({pno:req.body.pno})
+        if(!user)
+            throw new Error();
+        
+        
+       else{ 
+        client.verify.services(serid)
+        .verifications
+        .create({to: no, channel:'sms'})
+        .then((message) =>res.status(201).send(message));  
+       }
+              
+    }
+    catch(e)
+    {
+        res.status(401).send(e);
+    }
+})
+
+
+router.post('/verify',async (req,res)=>{
+    console.log(req.body.pno)
+    console.log(req.body.code) 
+    const no='+91' + req.body.pno
+    client.verify.services(serid)
+    .verificationChecks
+    .create({to: no, code: req.body.code})
+    .then(async (verification_check) =>{
+                if(verification_check.status)
+                {
+                    const user= await User.findOne({pno:req.body.pno})
+                    const token=await user.genrateAuthToken();
+                    res.status(201).send(token)
+                }
+    } );
+      
+    
+      
 })
 
 module.exports=router

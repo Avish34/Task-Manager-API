@@ -9,7 +9,6 @@ const TaskRouter=require('./routers/task.js')
 app.use(express.json())
 
 app.use(UserRouter)
-
 app.use(TaskRouter)
 
 module.exports=app

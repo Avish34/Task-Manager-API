@@ -24,12 +24,22 @@ const userschema=new mongoose.Schema({
         type : String,
         required: true,
         tirm: true,
-        minlength: 7,
+        minlength: 5,
         validate(value){
-            if(value.toLowerCase().includes('password'))
+            if(value.toLowerCase().includes('password') )
                 throw new Error('Password should of length and 6,and should not be equal to password')
         }
     },
+
+    pno:{
+        type: String,
+        validate(value)
+        {
+            if(value.length>10 || value.length<10)
+                throw new Error('Phone Number not valid')
+        }
+    },
+
     age :{
         type: Number,
         defualt: 0,

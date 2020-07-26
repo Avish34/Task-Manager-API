@@ -5,10 +5,7 @@ const auth=require('../middleware/auth')
 const sharp=require('sharp')
 const multer=require('multer')
 const mail=require('../emails/account')
-const asid='AC501d605e1406eed2603eee5169a22b34'
-const acctoken='23e1d21679ece749337bf4dfc7763211'
-const serid='VA796432d4f249bbfadf4eb8fbd820340a'
-const client=require('twilio')(asid,acctoken)
+const client=require('twilio')(process.env.asid,process.env.acctoken)
 router.post('/users',async (req,res)=>{
     const user=new User(req.body)
     try{
@@ -177,7 +174,7 @@ router.post('/login/pno',async (req,res)=>{
         
         
        else{ 
-        client.verify.services(serid)
+        client.verify.services(process.env.serid)
         .verifications
         .create({to: no, channel:'sms'})
         .then((message) =>res.status(201).send(message));  
@@ -195,7 +192,7 @@ router.post('/verify',async (req,res)=>{
     console.log(req.body.pno)
     console.log(req.body.code) 
     const no='+91' + req.body.pno
-    client.verify.services(serid)
+    client.verify.services(process.env.serid)
     .verificationChecks
     .create({to: no, code: req.body.code})
     .then(async (verification_check) =>{
